@@ -100,11 +100,11 @@
 <div class="wrap">
 
   <header>
-    <h1>扬声器除水</h1>
-    <p>用低频声波把喇叭里的积水震出来</p>
+    <h1 data-i18n="h1">扬声器除水</h1>
+    <p data-i18n="sub">用低频声波把喇叭里的积水震出来</p>
   </header>
 
-  <div class="warn">
+  <div class="warn" data-i18n="warn">
     <b>开始前请确认：</b>① 手机<b>静音开关关掉</b>（iPhone 侧边拨杆）② 音量调到<b>最大</b> ③ 让扬声器<b>朝下</b>
   </div>
 
@@ -115,16 +115,16 @@
       <circle class="bar" id="bar" cx="115" cy="115" r="105"></circle>
     </svg>
     <button id="btn">
-      <span id="btnLabel">开始</span>
-      <span class="sub" id="btnSub">15 秒</span>
+      <span id="btnLabel"></span>
+      <span class="sub" id="btnSub"></span>
     </button>
   </div>
 
   <div class="modes" id="modes"></div>
 
   <div class="tips">
-    <h2>正确用法</h2>
-    <ol>
+    <h2 data-i18n="tipsH">正确用法</h2>
+    <ol data-i18n="tips">
       <li>进水后<strong>尽快</strong>做，水停留越久越难震出来</li>
       <li>扬声器朝下拿着，让水靠重力往外走</li>
       <li>播放时可以轻轻甩动手机，帮助水珠脱离</li>
@@ -133,9 +133,9 @@
     </ol>
   </div>
 
-  <article>
+  <article data-i18n="article">
     <h2>这个原理是什么</h2>
-    <p>扬声器进水后声音变闷，是因为水珠附着在喇叭的网孔和振膜上，挡住了声音的传播。播放特定频率的低频音，振膜会以对应频率振动，把附着的水珠"甩"出去——和 Apple Watch 的排水功能、iPhone 的清理扬声器功能是同一个原理。</p>
+    <p>扬声器进水后声音变闷，是因为水珠附着在喇叭的网孔和振膜上，挡住了声音的传播。播放特定频率的低频音，振膜会以对应频率振动，把附着的水珠"甩"出去——和 Apple Watch 的排水功能是同一个原理。iPhone 系统里没有这个功能；部分安卓手机（如小米）在设置里自带「清理扬声器」，有的话直接用系统自带的就行。</p>
     <p>165Hz 是这个用途比较常用的频率：足够低，振膜位移大；又不至于低到手机扬声器发不出声。深度清洁用的扫频（120–480Hz 来回扫）能覆盖更多共振点，对付顽固水珠和灰尘更有效。</p>
 
     <h2>会不会把手机弄坏</h2>
@@ -146,15 +146,57 @@
   </article>
 
   <a class="app" href="https://apps.apple.com/app/id6793174422">
-    <b>iOS App 版本</b>
-    <span>离线可用 · 无广告 · 无需注册</span>
+    <b data-i18n="appH">iOS App 版本</b>
+    <span data-i18n="appSub">App Store 搜「扬声器清洁」· 离线可用 · 无广告</span>
   </a>
 
-  <footer>网页版完全免费，不收集任何数据</footer>
+  <footer data-i18n="foot">网页版完全免费，不收集任何数据</footer>
 </div>
 
 <script>
-const MODES = [
+// The Chinese copy lives in the markup (that's what search engines and
+// WeChat previews see). English replaces it at load for non-Chinese browsers,
+// or when the link carries ?lang=en — use that form on Reddit / X / Instagram.
+const LANG = new URLSearchParams(location.search).get('lang')
+  || ((navigator.language || 'zh').toLowerCase().startsWith('zh') ? 'zh' : 'en');
+
+const EN = {
+  title: 'Water Eject — shake water out of your phone speaker',
+  h1: 'Water Eject',
+  sub: 'A low-frequency tone that shakes water out of your speaker',
+  warn: '<b>Before you start:</b> ① turn <b>silent mode off</b> (iPhone side switch) ② volume all the way <b>up</b> ③ speaker facing <b>down</b>',
+  tipsH: 'How to use it',
+  tips: `<li>Do it <strong>soon</strong> — the longer water sits, the harder it is to shake out</li>
+      <li>Hold the phone speaker-down so gravity helps</li>
+      <li>Gently shake the phone while the tone plays</li>
+      <li>Still muffled after one run? Wait a moment and run it 2–3 more times</li>
+      <li>Dab away the water with a tissue. Don't use a hair dryer</li>`,
+  article: `<h2>How it works</h2>
+    <p>A wet speaker sounds muffled because droplets cling to the mesh and the diaphragm. A low tone makes the diaphragm move back and forth, flinging the droplets off — the same idea as the Apple Watch water lock. iPhone has no built-in version of this; some Android phones (e.g. Xiaomi) have a "clean speaker" option in Settings, so check there first.</p>
+    <p>165 Hz is the usual choice: low enough for a big diaphragm movement, high enough that a phone speaker can still produce it. Deep Clean sweeps 120–480 Hz to hit more resonance points, which helps with stubborn droplets and dust.</p>
+    <h2>Can it damage my phone?</h2>
+    <p>No — it's just sound, no different from playing music. Two caveats: wipe off standing water first, and if it was salt water, soda or another sugary or conductive liquid, sound can't fix the residue or corrosion. Get it serviced.</p>
+    <h2>Still not working?</h2>
+    <p>If several runs don't help, water may be inside the speaker or the hardware may be damaged, and sound can't fix that. Also: if only the <strong>earpiece</strong> (top of the screen) is quiet while the loudspeaker is fine, it's probably not water.</p>`,
+  appH: 'iOS app',
+  appSub: 'Works offline · no ads · no account',
+  foot: 'The web version is free and collects no data',
+};
+const L = LANG === 'en'
+  ? {start:'Start', stop:'Stop', sec:n => n + ' s'}
+  : {start:'开始',  stop:'停止', sec:n => n + ' 秒'};
+
+if(LANG === 'en'){
+  document.documentElement.lang = 'en';
+  document.title = EN.title;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = EN[el.dataset.i18n]; });
+}
+
+const MODES = LANG === 'en' ? [
+  {id:'eject', t:'Water Eject', d:'165 Hz tone that shakes water out',     hz:'165 Hz',     dur:15},
+  {id:'deep',  t:'Deep Clean',  d:'Sweep for dust and stubborn droplets',  hz:'120–480 Hz', dur:25},
+  {id:'test',  t:'Speaker Test', d:'Left / right channel check',           hz:'440 Hz L/R', dur:6},
+] : [
   {id:'eject', t:'扬声器除水', d:'165Hz 低频，震出积水',     hz:'165 Hz',      dur:15},
   {id:'deep',  t:'深度清洁',   d:'扫频，震出灰尘与顽固水珠', hz:'120–480 Hz',  dur:25},
   {id:'test',  t:'声道检测',   d:'左右声道交替，检查喇叭',   hz:'440 Hz L/R',  dur:6},
@@ -184,7 +226,7 @@ function renderModes(){
     el.onclick = ()=>{
       if(running) stop();
       sel = MODES.find(m=>m.id===el.dataset.id);
-      btnSub.textContent = sel.dur + ' 秒';
+      btnSub.textContent = L.sec(sel.dur);
       renderModes();
     };
   });
@@ -193,7 +235,7 @@ function renderModes(){
 async function start(){
   if(!ctx){
     const AC = window.AudioContext || window.webkitAudioContext;
-    if(!AC){ alert('当前浏览器不支持音频播放，请换用 Safari 或 Chrome'); return; }
+    if(!AC){ alert(LANG === 'en' ? 'This browser can\'t play audio. Try Safari or Chrome.' : '当前浏览器不支持音频播放，请换用 Safari 或 Chrome'); return; }
     ctx = new AC();
   }
   // iOS/Safari suspends the context until a user gesture resumes it.
@@ -213,7 +255,7 @@ async function start(){
   osc.start();
   running = true; t0 = performance.now();
   dial.classList.add('on');
-  btnLabel.textContent = '停止';
+  btnLabel.textContent = L.stop;
   tick();
   timer = setInterval(tick, 100);
 }
@@ -224,8 +266,8 @@ function stop(){
   if(osc){ try{ osc.stop(); osc.disconnect(); }catch(e){} osc = null; }
   dial.classList.remove('on');
   bar.style.strokeDashoffset = 659;
-  btnLabel.textContent = '开始';
-  btnSub.textContent = sel.dur + ' 秒';
+  btnLabel.textContent = L.start;
+  btnSub.textContent = L.sec(sel.dur);
 }
 
 function tick(){
@@ -233,7 +275,7 @@ function tick(){
   const el = (performance.now() - t0) / 1000;
   const p  = Math.min(1, el / sel.dur);
   bar.style.strokeDashoffset = 659 * (1 - p);
-  btnSub.textContent = Math.max(0, Math.ceil(sel.dur - el)) + ' 秒';
+  btnSub.textContent = L.sec(Math.max(0, Math.ceil(sel.dur - el)));
 
   if(sel.id === 'eject'){
     osc.frequency.value = 165;
@@ -253,6 +295,8 @@ function tick(){
 }
 
 btn.onclick = () => running ? stop() : start();
+btnLabel.textContent = L.start;
+btnSub.textContent = L.sec(sel.dur);
 renderModes();
 </script>
 </body>
