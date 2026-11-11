@@ -76,6 +76,10 @@
   .mode .hz{margin-left:auto;font-size:12px;color:rgba(255,255,255,.6);
     font-variant-numeric:tabular-nums;white-space:nowrap;}
 
+  .full{margin-top:14px;padding:14px 17px;border-radius:15px;font-size:13.5px;
+    background:rgba(255,201,60,.14);border:1px dashed rgba(255,201,60,.6);color:#ffe9b0;}
+  .full b{color:#FFC93C;white-space:nowrap;}
+
   .tips{margin-top:30px;padding:20px;border-radius:16px;background:rgba(0,20,60,.22);}
   .tips h2{font-size:16px;margin-bottom:12px;}
   .tips ol{padding-left:20px;font-size:14px;color:rgba(255,255,255,.88);}
@@ -122,6 +126,11 @@
 
   <div class="modes" id="modes"></div>
 
+  <!-- Chinese only: the full version is sold on Xiaohongshu. -->
+  <div class="full" id="full">
+    <b>完整版</b>：脉冲除水 · 深度清洁 · 声道检测 · 连续多轮 · 加到主屏幕没网也能用。小红书搜「<b>FIRE-Lee</b>」
+  </div>
+
   <div class="tips">
     <h2 data-i18n="tipsH">正确用法</h2>
     <ol data-i18n="tips">
@@ -136,7 +145,7 @@
   <article data-i18n="article">
     <h2>这个原理是什么</h2>
     <p>扬声器进水后声音变闷，是因为水珠附着在喇叭的网孔和振膜上，挡住了声音的传播。播放特定频率的低频音，振膜会以对应频率振动，把附着的水珠"甩"出去——和 Apple Watch 的排水功能是同一个原理。iPhone 系统里没有这个功能；部分安卓手机（如小米）在设置里自带「清理扬声器」，有的话直接用系统自带的就行。</p>
-    <p>165Hz 是这个用途比较常用的频率：足够低，振膜位移大；又不至于低到手机扬声器发不出声。深度清洁用的扫频（120–480Hz 来回扫）能覆盖更多共振点，对付顽固水珠和灰尘更有效。</p>
+    <p>165Hz 是这个用途比较常用的频率：足够低，振膜位移大；又不至于低到手机扬声器发不出声。完整版和 App 里的深度清洁用扫频（120–480Hz 来回扫），能覆盖更多共振点，对付顽固水珠和灰尘更有效。</p>
 
     <h2>会不会把手机弄坏</h2>
     <p>不会。这只是正常播放声音，和你听音乐没有本质区别，不会损伤扬声器。但有两点要注意：一是别在扬声器已经完全泡水、还没擦干外部积水时就播放；二是如果手机进的是海水、糖水或其他导电液体，声波除水解决不了腐蚀问题，建议尽快送修。</p>
@@ -173,7 +182,7 @@ const EN = {
       <li>Dab away the water with a tissue. Don't use a hair dryer</li>`,
   article: `<h2>How it works</h2>
     <p>A wet speaker sounds muffled because droplets cling to the mesh and the diaphragm. A low tone makes the diaphragm move back and forth, flinging the droplets off — the same idea as the Apple Watch water lock. iPhone has no built-in version of this; some Android phones (e.g. Xiaomi) have a "clean speaker" option in Settings, so check there first.</p>
-    <p>165 Hz is the usual choice: low enough for a big diaphragm movement, high enough that a phone speaker can still produce it. Deep Clean sweeps 120–480 Hz to hit more resonance points, which helps with stubborn droplets and dust.</p>
+    <p>165 Hz is the usual choice: low enough for a big diaphragm movement, high enough that a phone speaker can still produce it. The app's Deep Clean sweeps 120–480 Hz to hit more resonance points, which helps with stubborn droplets and dust.</p>
     <h2>Can it damage my phone?</h2>
     <p>No — it's just sound, no different from playing music. Two caveats: wipe off standing water first, and if it was salt water, soda or another sugary or conductive liquid, sound can't fix the residue or corrosion. Get it serviced.</p>
     <h2>Still not working?</h2>
@@ -190,19 +199,17 @@ if(LANG === 'en'){
   document.documentElement.lang = 'en';
   document.title = EN.title;
   document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = EN[el.dataset.i18n]; });
+  document.getElementById('full').remove();
 }
 
+// Deep Clean and Speaker Test live in the app and the paid full version.
 const MODES = LANG === 'en' ? [
-  {id:'eject', t:'Water Eject', d:'165 Hz tone that shakes water out',     hz:'165 Hz',     dur:15},
-  {id:'deep',  t:'Deep Clean',  d:'Sweep for dust and stubborn droplets',  hz:'120–480 Hz', dur:25},
-  {id:'test',  t:'Speaker Test', d:'Left / right channel check',           hz:'440 Hz L/R', dur:6},
+  {id:'eject', t:'Water Eject', d:'165 Hz tone that shakes water out', hz:'165 Hz', dur:15},
 ] : [
-  {id:'eject', t:'扬声器除水', d:'165Hz 低频，震出积水',     hz:'165 Hz',      dur:15},
-  {id:'deep',  t:'深度清洁',   d:'扫频，震出灰尘与顽固水珠', hz:'120–480 Hz',  dur:25},
-  {id:'test',  t:'声道检测',   d:'左右声道交替，检查喇叭',   hz:'440 Hz L/R',  dur:6},
+  {id:'eject', t:'扬声器除水', d:'165Hz 低频，震出积水', hz:'165 Hz', dur:15},
 ];
 
-let sel = MODES[0], ctx = null, osc = null, gain = null, pan = null;
+let sel = MODES[0], ctx = null, osc = null, gain = null;
 // setInterval, not requestAnimationFrame: rAF stops firing once the tab is
 // hidden, which would leave the tone playing past its duration.
 let timer = null, t0 = 0, running = false;
@@ -246,11 +253,7 @@ async function start(){
   osc.type = 'sine';
   osc.frequency.value = 165;
   gain.gain.value = 0.9;
-
-  // StereoPanner is missing on some older WebKit builds — fall back to mono.
-  pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
-  if(pan){ osc.connect(gain); gain.connect(pan); pan.connect(ctx.destination); }
-  else   { osc.connect(gain); gain.connect(ctx.destination); }
+  osc.connect(gain); gain.connect(ctx.destination);
 
   osc.start();
   running = true; t0 = performance.now();
@@ -276,17 +279,6 @@ function tick(){
   const p  = Math.min(1, el / sel.dur);
   bar.style.strokeDashoffset = 659 * (1 - p);
   btnSub.textContent = L.sec(Math.max(0, Math.ceil(sel.dur - el)));
-
-  if(sel.id === 'eject'){
-    osc.frequency.value = 165;
-  } else if(sel.id === 'deep'){
-    const t = (el % 4) / 4;                    // 0…1 every 4s
-    const tri = t < 0.5 ? t * 2 : (1 - t) * 2; // triangle sweep
-    osc.frequency.value = 120 + tri * 360;
-  } else {
-    osc.frequency.value = 440;
-    if(pan) pan.pan.value = Math.floor(el) % 2 === 0 ? -1 : 1;
-  }
 
   if(p >= 1){
     stop();
